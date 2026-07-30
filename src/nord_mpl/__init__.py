@@ -10,6 +10,7 @@ Provides:
   - load_nord_theme(): returns aquarel Theme with the 9-colour Nord cycle
 """
 from importlib.resources import files
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
@@ -27,7 +28,7 @@ _nord_named = {
     "nord11": "#bf616a", "nord12": "#d08770", "nord13": "#ebcb8b",
     "nord14": "#a3be8c", "nord15": "#b48ead",
 }
-mcolors._colors_full_map.update(_nord_named)
+mcolors.get_named_colors_mapping().update(_nord_named)
 
 # ── Colormaps ─────────────────────────────────────────────────────────
 _FROST = ["#8fbcbb", "#88c0d0", "#81a1c1", "#5e81ac"]
@@ -68,10 +69,15 @@ for _cmap in _cmaps.values():
         pass
 
 # ── Stylesheet ────────────────────────────────────────────────────────
-# Register the package's data directory so plt.style.use('nord-dark') works.
-_style_dir = files("nord_mpl") / "data"
-plt.style.core.USER_LIBRARY_PATHS.append(str(_style_dir))
-plt.style.core.reload_library()
+# Register 'nord-dark' so plt.style.use('nord-dark') works. Loading the
+# rcParams here keeps us off matplotlib.style.core, which moved in 3.11.
+_style_path = files("nord_mpl") / "data" / "nord-dark.mplstyle"
+plt.style.library["nord-dark"] = mpl.rc_params_from_file(
+    _style_path, use_default_template=False
+)
+plt.style.available[:] = sorted(
+    name for name in plt.style.library if not name.startswith("_")
+)
 
 
 # ── Aquarel theme loader ──────────────────────────────────────────────
@@ -89,4 +95,4 @@ def load_nord_theme():
 
 
 __all__ = ["load_nord_theme"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"

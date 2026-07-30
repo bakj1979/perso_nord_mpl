@@ -9,8 +9,10 @@ Personal package by Jeffrey Scott Baker.
 Editable install from local clone:
 
 ```bash
-pip install -e ~/Documents/Python/python_code/python_projects_perso/perso_nord_mpl
+pip install -e ~/repos/quant/perso/perso_nord_mpl
 ```
+
+See [INSTALL.md](INSTALL.md) for uv projects and verification.
 
 ## What it does
 
