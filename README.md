@@ -54,8 +54,14 @@ the theme's transforms, pass it: `show(theme)`.
 To save a figure instead of displaying it, finalise the layout yourself:
 
 ```python
-from nord_mpl import finalise_layout
-finalise_layout(theme)
+import matplotlib.pyplot as plt
+from nord_mpl import finalise_layout, load_nord_theme
+
+theme = load_nord_theme()
+theme.apply()                    # once, after import
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3])
+finalise_layout(theme)           # immediately before every save
 fig.savefig("figure.png")
 ```
 
