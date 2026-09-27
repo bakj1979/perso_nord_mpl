@@ -1,4 +1,4 @@
-"""Tests for ``nord_mpl.finalise_layout``.
+"""Tests for ``nord_mpl.finalise_layout`` and its wrapper ``nord_mpl.show``.
 
 The Nord theme carries two aquarel transforms that need opposite positions
 relative to ``Figure.tight_layout()``: ``offset`` moves labels, so the layout
@@ -6,7 +6,8 @@ must follow it; ``trim`` reads tick positions, so it must follow the layout.
 Each behaviour is tested alongside a companion showing that the naive call
 order fails on the same figure, so the tests cannot pass vacuously.
 
-All figures use synthetic data and the Agg backend.
+All figures use synthetic data and the Agg backend. ``plt.show`` is replaced
+in the ``show`` tests, since Agg cannot display a figure.
 """
 
 import copy
@@ -142,3 +143,43 @@ def test_theme_transforms_are_not_modified(theme: Theme) -> None:
     nord_mpl.finalise_layout(theme)
 
     assert theme.transforms == transforms_before
+
+
+def test_show_finalises_layout_before_displaying(
+    theme: Theme, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fig = _narrow_axes_figure()
+    trimmed_at_display: list[bool] = []
+    monkeypatch.setattr(
+        plt,
+        "show",
+        lambda: trimmed_at_display.append(_x_spine_ends_on_drawn_ticks(fig)),
+    )
+
+    nord_mpl.show(theme)
+
+    assert trimmed_at_display == [True]
+
+
+def test_show_without_theme_uses_packaged_transforms(
+    theme: Theme, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fig, twin_label, right_label = _twin_axis_figure()
+    monkeypatch.setattr(plt, "show", lambda: None)
+
+    nord_mpl.show()
+
+    assert not _overlap(fig, twin_label, right_label)
+    assert fig.axes[0].spines["bottom"].get_bounds() is not None
+
+
+def test_show_with_explicit_theme_uses_that_theme(
+    theme: Theme, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    theme.transforms = {}
+    _, ax = plt.subplots()
+    monkeypatch.setattr(plt, "show", lambda: None)
+
+    nord_mpl.show(theme)
+
+    assert ax.spines["bottom"].get_bounds() is None

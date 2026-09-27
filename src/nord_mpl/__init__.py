@@ -10,6 +10,7 @@ Provides:
   - load_nord_theme(): returns aquarel Theme with the 9-colour Nord cycle
   - finalise_layout(theme): tight_layout plus the theme's transforms, in
     the order each needs; call immediately before plt.show()
+  - show(): finalise_layout followed by plt.show(), in one call
 """
 from importlib.resources import files
 from typing import TYPE_CHECKING
@@ -142,5 +143,31 @@ def finalise_layout(theme: "Theme") -> None:
         aquarel_transforms.trim(**theme.transforms["trim"])
 
 
-__all__ = ["finalise_layout", "load_nord_theme"]
-__version__ = "0.2.0"
+def show(theme: "Theme | None" = None) -> None:
+    """Finalise the current figure's layout, then display it.
+
+    Shorthand for ``finalise_layout(theme)`` followed by ``plt.show()``, so
+    one call replaces ``fig.tight_layout()``, ``theme.apply_transforms()``
+    and ``plt.show()``.
+
+    Assumes the theme's rcParams are already in force: call
+    ``load_nord_theme().apply()`` once per session first. This function
+    applies transforms only. The assumptions of ``finalise_layout`` hold.
+
+    Args:
+        theme: aquarel Theme whose transforms are applied. If omitted, the
+            packaged Nord theme from ``load_nord_theme()`` is used. Pass the
+            theme explicitly if its transforms have been customised.
+
+    Usage:
+        from nord_mpl import load_nord_theme, show
+        load_nord_theme().apply()
+        # ... build figure ...
+        show()
+    """
+    finalise_layout(load_nord_theme() if theme is None else theme)
+    plt.show()
+
+
+__all__ = ["finalise_layout", "load_nord_theme", "show"]
+__version__ = "0.3.0"

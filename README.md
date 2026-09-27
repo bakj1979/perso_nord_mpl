@@ -22,10 +22,11 @@ On `import nord_mpl`, the package automatically registers:
 - **6 colormaps** plus their `_r` reversed variants: `nord_seq`, `nord_frost`, `nord_aurora`, `nord_div`, `nord_qual`, `nord_mono`.
 - **1 stylesheet**: `nord-dark`, usable via `plt.style.use("nord-dark")`.
 
-It also exposes two functions:
+It also exposes three functions:
 
 - **`load_nord_theme()`**: returns an aquarel `Theme` configured with the full 9-colour Nord cycle (extends aquarel's built-in 6-colour `arctic_dark`).
-- **`finalise_layout(theme)`**: lays out the current figure and applies the theme's transforms in the order each needs. Call it immediately before every `plt.show()`, in place of `fig.tight_layout()` and `theme.apply_transforms()`.
+- **`show()`**: finalises the current figure's layout and displays it. One call in place of `fig.tight_layout()`, `theme.apply_transforms()` and `plt.show()`.
+- **`finalise_layout(theme)`**: the layout step of `show()` on its own, for when the figure is saved rather than displayed.
 
 ## Use
 
@@ -39,13 +40,23 @@ plt.plot([1, 2, 3], color="nord11")
 plt.imshow(data, cmap="nord_seq")
 
 # Option 2: aquarel theme
-from nord_mpl import finalise_layout, load_nord_theme
+from nord_mpl import load_nord_theme, show
 theme = load_nord_theme()
 theme.apply()                    # once, after import
 fig, ax = plt.subplots()
 ax.plot([1, 2, 3])
-finalise_layout(theme)           # immediately before every plt.show()
-plt.show()
+show()                           # in place of plt.show(), for every figure
+```
+
+`show()` uses the packaged Nord theme's transforms. If you have customised
+the theme's transforms, pass it: `show(theme)`.
+
+To save a figure instead of displaying it, finalise the layout yourself:
+
+```python
+from nord_mpl import finalise_layout
+finalise_layout(theme)
+fig.savefig("figure.png")
 ```
 
 ### Why `finalise_layout`

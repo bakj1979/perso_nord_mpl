@@ -46,10 +46,10 @@ pip install -e ~/repos/quant/perso/perso_nord_mpl
 **uv project** (install from git, pinned to a tag):
 
 ```bash
-uv add "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.2.0"
+uv add "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.3.0"
 ```
 
-Pin the tag. Without `@v0.2.0` the install tracks the default branch, so two
+Pin the tag. Without `@v0.3.0` the install tracks the default branch, so two
 environments built a week apart can end up on different commits — which is
 exactly how an env can silently land on 0.1.0 and break under matplotlib 3.11.
 uv records the resolved commit SHA in `direct_url.json`, so a pinned install
@@ -66,7 +66,7 @@ uv add --editable ~/repos/quant/perso/perso_nord_mpl
 
 ```bash
 uv pip install --python .venv/bin/python \
-    "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.2.0"
+    "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.3.0"
 ```
 
 `uv add` is for uv-managed projects: it writes a static `project.dependencies`
@@ -111,10 +111,10 @@ plt.style.use("nord-dark")
 theme = nord_mpl.load_nord_theme()
 theme.apply()
 
-# Layout helper (0.2.0 and later)
+# Layout and display (show from 0.3.0, finalise_layout from 0.2.0)
 fig, ax = plt.subplots()
 ax.plot([1, 2, 3])
-nord_mpl.finalise_layout(theme)
+nord_mpl.show()
 ```
 
 To run the test suite without installing pytest into a shared env, from the
@@ -146,6 +146,10 @@ combinations: Python 3.14.5 with matplotlib 3.11.2, aquarel 0.0.7 and numpy
 `finalise_layout` rests on `pyplot.gcf`, `Figure.tight_layout` and the
 module-level functions in `aquarel.transforms`, whose names match the keys of
 `Theme.transforms`.
+
+Version 0.3.0 adds `show`, which calls `finalise_layout` and then
+`pyplot.show`. The same test file, now nine tests, was run on the same two
+combinations as 0.2.0. The 0.1.1 matrix was not re-run for 0.3.0 either.
 
 Use 0.1.1 or later on matplotlib >= 3.11. matplotlib 3.11 relocated
 `matplotlib.style.core`; the original 0.1.0 import path relied on it and fails
