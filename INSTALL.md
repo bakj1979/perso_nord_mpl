@@ -19,12 +19,14 @@ Expected layout:
 ├── INSTALL.md
 ├── LICENSE
 ├── .gitignore
-└── src/
-    └── nord_mpl/
-        ├── __init__.py
-        └── data/
-            ├── arctic_dark_custom.json
-            └── nord-dark.mplstyle
+├── src/
+│   └── nord_mpl/
+│       ├── __init__.py
+│       └── data/
+│           ├── arctic_dark_custom.json
+│           └── nord-dark.mplstyle
+└── tests/
+    └── test_finalise_layout.py
 ```
 
 If the target folder already exists, GitHub Desktop will refuse to clone into
@@ -44,10 +46,10 @@ pip install -e ~/repos/quant/perso/perso_nord_mpl
 **uv project** (install from git, pinned to a tag):
 
 ```bash
-uv add "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.1.1"
+uv add "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.2.0"
 ```
 
-Pin the tag. Without `@v0.1.1` the install tracks the default branch, so two
+Pin the tag. Without `@v0.2.0` the install tracks the default branch, so two
 environments built a week apart can end up on different commits — which is
 exactly how an env can silently land on 0.1.0 and break under matplotlib 3.11.
 uv records the resolved commit SHA in `direct_url.json`, so a pinned install
@@ -64,7 +66,7 @@ uv add --editable ~/repos/quant/perso/perso_nord_mpl
 
 ```bash
 uv pip install --python .venv/bin/python \
-    "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.1.1"
+    "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.2.0"
 ```
 
 `uv add` is for uv-managed projects: it writes a static `project.dependencies`
@@ -108,7 +110,21 @@ plt.style.use("nord-dark")
 # Aquarel theme
 theme = nord_mpl.load_nord_theme()
 theme.apply()
+
+# Layout helper (0.2.0 and later)
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3])
+nord_mpl.finalise_layout(theme)
 ```
+
+To run the test suite without installing pytest into a shared env, from the
+repo root:
+
+```bash
+uv run --no-project --with pytest --with-editable . pytest
+```
+
+`--no-project` stops uv creating a `.venv` and a `uv.lock` inside the repo.
 
 ## 4. Compatibility
 
@@ -121,6 +137,15 @@ errors, and checked import, the twelve colormaps, the `nord0`–`nord15` named
 colours, `plt.style.use("nord-dark")`, and the aquarel theme through
 `apply_transforms()` to a rendered figure. 3.6.3 is the declared floor, so the
 supported range is tested at both ends rather than only in the middle.
+
+Version 0.2.0 adds `finalise_layout` and leaves the import-time registration
+untouched. Its test suite (`tests/test_finalise_layout.py`) was run on two
+combinations: Python 3.14.5 with matplotlib 3.11.2, aquarel 0.0.7 and numpy
+2.5.3; and the declared floor, Python 3.11.15 with matplotlib 3.6.3, aquarel
+0.0.6 and numpy 1.26.4. The 0.1.1 matrix above was not re-run for 0.2.0.
+`finalise_layout` rests on `pyplot.gcf`, `Figure.tight_layout` and the
+module-level functions in `aquarel.transforms`, whose names match the keys of
+`Theme.transforms`.
 
 Use 0.1.1 or later on matplotlib >= 3.11. matplotlib 3.11 relocated
 `matplotlib.style.core`; the original 0.1.0 import path relied on it and fails

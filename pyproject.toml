@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nord-mpl"
-version = "0.1.1"
+version = "0.2.0"
 description = "Nord colour palette for matplotlib: colormaps, named colours, mplstyle, and aquarel theme."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,6 +24,9 @@ dependencies = [
     "aquarel>=0.0.6",
 ]
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [project.urls]
 Homepage = "https://github.com/bakj1979/perso_nord_mpl"
 Repository = "https://github.com/bakj1979/perso_nord_mpl"
@@ -33,3 +36,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 nord_mpl = ["data/*.json", "data/*.mplstyle"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

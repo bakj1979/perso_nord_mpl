@@ -22,9 +22,10 @@ On `import nord_mpl`, the package automatically registers:
 - **6 colormaps** plus their `_r` reversed variants: `nord_seq`, `nord_frost`, `nord_aurora`, `nord_div`, `nord_qual`, `nord_mono`.
 - **1 stylesheet**: `nord-dark`, usable via `plt.style.use("nord-dark")`.
 
-It also exposes one function:
+It also exposes two functions:
 
 - **`load_nord_theme()`**: returns an aquarel `Theme` configured with the full 9-colour Nord cycle (extends aquarel's built-in 6-colour `arctic_dark`).
+- **`finalise_layout(theme)`**: lays out the current figure and applies the theme's transforms in the order each needs. Call it immediately before every `plt.show()`, in place of `fig.tight_layout()` and `theme.apply_transforms()`.
 
 ## Use
 
@@ -38,10 +39,27 @@ plt.plot([1, 2, 3], color="nord11")
 plt.imshow(data, cmap="nord_seq")
 
 # Option 2: aquarel theme
-from nord_mpl import load_nord_theme
+from nord_mpl import finalise_layout, load_nord_theme
 theme = load_nord_theme()
-theme.apply()
+theme.apply()                    # once, after import
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3])
+finalise_layout(theme)           # immediately before every plt.show()
+plt.show()
 ```
+
+### Why `finalise_layout`
+
+The theme carries two transforms that need opposite positions relative to
+`fig.tight_layout()`. `offset` pushes spines and labels outward, so the layout
+has to be computed after it or labels on neighbouring panels can collide.
+`trim` cuts each spine to the major ticks present when it is called, so it has
+to run after the layout, which can change them. `theme.apply_transforms()`
+applies both at once, so neither order of `tight_layout()` and
+`apply_transforms()` is right. `finalise_layout` applies `offset`, then
+`tight_layout()`, then `trim`.
+
+It acts on the current figure and does not support constrained layout.
 
 ## Reserved colormaps
 

@@ -8,11 +8,18 @@ Auto-registers on import:
 
 Provides:
   - load_nord_theme(): returns aquarel Theme with the 9-colour Nord cycle
+  - finalise_layout(theme): tight_layout plus the theme's transforms, in
+    the order each needs; call immediately before plt.show()
 """
 from importlib.resources import files
+from typing import TYPE_CHECKING
+
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+
+if TYPE_CHECKING:
+    from aquarel import Theme
 
 # ── Named colours ─────────────────────────────────────────────────────
 _nord_named = {
@@ -94,5 +101,46 @@ def load_nord_theme():
     return Theme.from_file(str(json_path))
 
 
-__all__ = ["load_nord_theme"]
-__version__ = "0.1.1"
+# ── Layout helper ─────────────────────────────────────────────────────
+def finalise_layout(theme: "Theme") -> None:
+    """Lay out the current figure and apply the theme's transforms, in order.
+
+    Replaces the pair ``fig.tight_layout()`` / ``theme.apply_transforms()``.
+    Neither order of that pair is right for a theme carrying both ``offset``
+    and ``trim``:
+
+      - ``offset`` pushes spines, tick labels and axis labels outward, so the
+        layout has to be computed after it or labels can collide.
+      - ``trim`` cuts each spine to the major ticks present when it is
+        called, so it has to run after the layout, which can change them.
+
+    Every transform except ``trim`` is therefore applied first, then
+    ``tight_layout``, then ``trim``.
+
+    Assumes the figure uses no other layout engine; constrained layout is
+    not supported. Acts on the current figure, as ``apply_transforms`` does.
+    ``theme.transforms`` is read, not modified.
+
+    Args:
+        theme: aquarel Theme whose transforms are applied, typically the one
+            returned by ``load_nord_theme()``.
+
+    Usage:
+        theme = load_nord_theme()
+        theme.apply()
+        # ... build figure ...
+        finalise_layout(theme)   # immediately before every plt.show()
+        plt.show()
+    """
+    from aquarel import transforms as aquarel_transforms
+
+    for name, kwargs in theme.transforms.items():
+        if name != "trim":
+            getattr(aquarel_transforms, name)(**kwargs)
+    plt.gcf().tight_layout()
+    if "trim" in theme.transforms:
+        aquarel_transforms.trim(**theme.transforms["trim"])
+
+
+__all__ = ["finalise_layout", "load_nord_theme"]
+__version__ = "0.2.0"
