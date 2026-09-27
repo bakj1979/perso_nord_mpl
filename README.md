@@ -37,6 +37,7 @@ import matplotlib.pyplot as plt
 # Option 1: stylesheet
 plt.style.use("nord-dark")
 plt.plot([1, 2, 3], color="nord11")
+data = [[0, 1], [2, 3]]
 plt.imshow(data, cmap="nord_seq")
 
 # Option 2: aquarel theme
