@@ -1,6 +1,6 @@
 # nord-mpl
 
-Nord colour palette for matplotlib — colormaps, named colours, an mplstyle, and an aquarel theme.
+Nord colour palette for matplotlib — colormaps, named colours, an mplstyle, and an aquarel theme — plus a matching Plotly template.
 
 Personal package by Jeffrey Scott Baker.
 
@@ -78,6 +78,35 @@ applies both at once, so neither order of `tight_layout()` and
 `tight_layout()`, then `trim`.
 
 It acts on the current figure and does not support constrained layout.
+
+## Plotly
+
+Install the extra (`pip install -e ".[plotly]"`, or
+`uv add "nord-mpl[plotly] @ git+..."`). Importing `nord_mpl.plotly`
+registers a `nord_dark` template built from the `nord-dark` stylesheet,
+so both libraries share one palette.
+
+```python
+import plotly.express as px
+import plotly.io as pio
+import nord_mpl.plotly as nord
+
+pio.templates.default = "nord_dark"            # every figure, or
+fig = px.line(x=[0, 1, 2], y=[0, 1, 4], template="nord_dark")
+
+fig.add_scatter(x=[0, 2], y=[1, 1], line_color=nord.COLOURS["nord11"])
+px.imshow([[0, 1], [2, 3]], color_continuous_scale=nord.COLORSCALES["nord_div_r"])
+```
+
+- **`nord.COLOURS`**: `nord0` to `nord15` as hex. Plotly only knows CSS colour
+  names, so `color="nord11"` does not work there.
+- **`nord.COLORWAY`**: the 9-colour cycle, also the template's `colorway`.
+- **`nord.COLORSCALES`**: the six colormaps plus `_r` reverses. `nord_seq` is
+  the default for heatmaps, contours, surfaces and Plotly Express continuous
+  colour; `nord_div` is the default diverging scale. `nord_qual` is stepped,
+  like its matplotlib counterpart.
+
+Importing the template does not set it as the default; that stays your choice.
 
 ## Reserved colormaps
 

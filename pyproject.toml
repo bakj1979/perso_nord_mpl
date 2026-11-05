@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nord-mpl"
-version = "0.3.0"
-description = "Nord colour palette for matplotlib: colormaps, named colours, mplstyle, and aquarel theme."
+version = "0.4.0"
+description = "Nord colour palette for matplotlib (colormaps, named colours, mplstyle, aquarel theme) with a matching Plotly template."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Jeffrey Scott Baker" }]
 license = { text = "MIT" }
-keywords = ["matplotlib", "nord", "colormap", "theme", "aquarel"]
+keywords = ["matplotlib", "plotly", "nord", "colormap", "theme", "aquarel"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -25,7 +25,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest"]
+plotly = ["plotly>=5.0"]
+test = ["pytest", "plotly>=5.0"]
 
 [project.urls]
 Homepage = "https://github.com/bakj1979/perso_nord_mpl"

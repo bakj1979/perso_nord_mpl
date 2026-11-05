@@ -22,11 +22,13 @@ Expected layout:
 ├── src/
 │   └── nord_mpl/
 │       ├── __init__.py
+│       ├── plotly.py
 │       └── data/
 │           ├── arctic_dark_custom.json
 │           └── nord-dark.mplstyle
 └── tests/
-    └── test_finalise_layout.py
+    ├── test_finalise_layout.py
+    └── test_plotly.py
 ```
 
 If the target folder already exists, GitHub Desktop will refuse to clone into
@@ -46,10 +48,10 @@ pip install -e ~/repos/quant/perso/perso_nord_mpl
 **uv project** (install from git, pinned to a tag):
 
 ```bash
-uv add "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.3.0"
+uv add "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.4.0"
 ```
 
-Pin the tag. Without `@v0.3.0` the install tracks the default branch, so two
+Pin the tag. Without `@v0.4.0` the install tracks the default branch, so two
 environments built a week apart can end up on different commits — which is
 exactly how an env can silently land on 0.1.0 and break under matplotlib 3.11.
 uv records the resolved commit SHA in `direct_url.json`, so a pinned install
@@ -66,7 +68,7 @@ uv add --editable ~/repos/quant/perso/perso_nord_mpl
 
 ```bash
 uv pip install --python .venv/bin/python \
-    "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.3.0"
+    "nord-mpl @ git+https://github.com/bakj1979/perso_nord_mpl@v0.4.0"
 ```
 
 `uv add` is for uv-managed projects: it writes a static `project.dependencies`
@@ -115,13 +117,21 @@ theme.apply()
 fig, ax = plt.subplots()
 ax.plot([1, 2, 3])
 nord_mpl.show()
+
+# Plotly (needs the [plotly] extra, from 0.4.0)
+import plotly.io as pio
+import nord_mpl.plotly
+print("nord_dark" in pio.templates)        # -> True
 ```
+
+For Plotly, install with the extra: `nord-mpl[plotly] @ git+...` or
+`pip install -e "~/repos/quant/perso/perso_nord_mpl[plotly]"`.
 
 To run the test suite without installing pytest into a shared env, from the
 repo root:
 
 ```bash
-uv run --no-project --with pytest --with-editable . pytest
+uv run --no-project --with-editable '.[test]' pytest
 ```
 
 `--no-project` stops uv creating a `.venv` and a `uv.lock` inside the repo.
@@ -150,6 +160,11 @@ module-level functions in `aquarel.transforms`, whose names match the keys of
 Version 0.3.0 adds `show`, which calls `finalise_layout` and then
 `pyplot.show`. The same test file, now nine tests, was run on the same two
 combinations as 0.2.0. The 0.1.1 matrix was not re-run for 0.3.0 either.
+
+Version 0.4.0 adds `nord_mpl.plotly` behind the optional `[plotly]` extra and
+leaves the matplotlib behaviour unchanged. The full suite, 37 tests, was run on
+Python 3.14.5 with matplotlib 3.11.2, plotly 7.1.0, aquarel 0.0.7 and numpy
+2.5.4 only. The declared `plotly>=5.0` floor is untested.
 
 Use 0.1.1 or later on matplotlib >= 3.11. matplotlib 3.11 relocated
 `matplotlib.style.core`; the original 0.1.0 import path relied on it and fails

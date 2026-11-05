@@ -44,29 +44,24 @@ _AURORA = ["#bf616a", "#d08770", "#ebcb8b", "#a3be8c", "#b48ead"]
 _POLAR_NIGHT = ["#2e3440", "#3b4252", "#434c5e", "#4c566a"]
 _SNOW_STORM = ["#d8dee9", "#e5e9f0", "#eceff4"]
 
-_cmaps = {
-    "nord_frost": mcolors.LinearSegmentedColormap.from_list(
-        "nord_frost", list(reversed(_FROST))
-    ),
-    "nord_seq": mcolors.LinearSegmentedColormap.from_list(
-        "nord_seq",
-        ["#5e81ac", "#81a1c1", "#88c0d0", "#8fbcbb",
-         "#a3be8c", "#ebcb8b", "#d08770", "#bf616a"],
-    ),
-    "nord_aurora": mcolors.LinearSegmentedColormap.from_list(
-        "nord_aurora", _AURORA
-    ),
-    "nord_div": mcolors.LinearSegmentedColormap.from_list(
-        "nord_div",
-        ["#5e81ac", "#81a1c1", "#88c0d0",
-         "#eceff4",
-         "#ebcb8b", "#d08770", "#bf616a"],
-    ),
-    "nord_qual": mcolors.ListedColormap(_FROST + _AURORA, name="nord_qual"),
-    "nord_mono": mcolors.LinearSegmentedColormap.from_list(
-        "nord_mono", _POLAR_NIGHT + _SNOW_STORM
-    ),
+# Evenly spaced anchors of each linear colormap; shared with nord_mpl.plotly.
+_LINEAR_ANCHORS = {
+    "nord_frost": list(reversed(_FROST)),
+    "nord_seq": ["#5e81ac", "#81a1c1", "#88c0d0", "#8fbcbb",
+                 "#a3be8c", "#ebcb8b", "#d08770", "#bf616a"],
+    "nord_aurora": _AURORA,
+    "nord_div": ["#5e81ac", "#81a1c1", "#88c0d0",
+                 "#eceff4",
+                 "#ebcb8b", "#d08770", "#bf616a"],
+    "nord_mono": _POLAR_NIGHT + _SNOW_STORM,
 }
+_QUALITATIVE = _FROST + _AURORA
+
+_cmaps = {
+    name: mcolors.LinearSegmentedColormap.from_list(name, anchors)
+    for name, anchors in _LINEAR_ANCHORS.items()
+}
+_cmaps["nord_qual"] = mcolors.ListedColormap(_QUALITATIVE, name="nord_qual")
 
 for _cmap in _cmaps.values():
     try:
@@ -170,4 +165,4 @@ def show(theme: "Theme | None" = None) -> None:
 
 
 __all__ = ["finalise_layout", "load_nord_theme", "show"]
-__version__ = "0.3.0"
+__version__ = "0.4.0"
